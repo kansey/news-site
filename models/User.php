@@ -1,8 +1,11 @@
 <?php
 
 namespace app\models;
+use Yii;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
-class User extends \yii\base\Object implements \yii\web\IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
     public $id;
     public $username;
