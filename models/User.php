@@ -4,14 +4,15 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\base\NotSupportedException;
 
 class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
+    //public $id;
+    //public $username;
+    //public $password;
     public $authKey;
-    public $accessToken;
+    //public $accessToken;
 
     private static $users = [
         '100' => [
@@ -29,6 +30,11 @@ class User extends ActiveRecord implements IdentityInterface
             'accessToken' => '101-token',
         ],
     ];
+
+    public static function tableName()
+    {
+      return '{{%users}}';
+    } //end tableName()
 
 
     /**
@@ -104,4 +110,15 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->password === $password;
     }
+
+    public function setPassword($password)
+    {
+        return Yii::$app->getSecurity()->generatePasswordHash($password);
+    }
+
+    public function generateAuthKey()
+    {
+        $this->authKey = Yii::$app->security->generateRandomString();
+    }
+
 }

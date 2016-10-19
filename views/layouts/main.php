@@ -8,6 +8,7 @@ use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
+use kartik\alert\AlertBlock;
 
 AppAsset::register($this);
 ?>
@@ -39,6 +40,7 @@ AppAsset::register($this);
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
+            ['label' => 'SignUp', 'url' => ['/site/signup']],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (
@@ -62,6 +64,7 @@ AppAsset::register($this);
         ]) ?>
         <?= $content ?>
     </div>
+
 </div>
 
 <footer class="footer">

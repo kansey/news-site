@@ -23,10 +23,18 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp.mail.ru',  // e.g. smtp.mandrillapp.com or smtp.gmail.com
+                'username' => 'kansey13@mail.ru',
+                'password' => 'Raven747',
+                'port' => '587', // Port 25 is a very common port too
+                'encryption' => 'tls', // It is often used, check your provider or mail
+            ],
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'useFileTransport' => false,
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -56,11 +64,12 @@ if (YII_ENV_DEV) {
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
     ];
-
+    $config['modules']['debug']['allowedIPs'] = ['127.0.*'];
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
     ];
+    $config['modules']['gii']['allowedIPs'] = ['127.0.*'];
 }
 
 return $config;

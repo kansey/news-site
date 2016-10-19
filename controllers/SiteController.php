@@ -9,6 +9,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
+use app\models\User;
 
 class SiteController extends Controller
 {
@@ -126,6 +127,41 @@ class SiteController extends Controller
 
     public function actionSignup()
     {
-        # code...
+        $model = new SignupForm();
+        if ($model->load(Yii::$app->request->post())) {
+            if ($user = $model->signup()) {
+                    $email = Yii::$app->mailer->compose()
+                            ->setFrom([\Yii::$app->params['adminEmail'] => 'Please confirm email for' . \Yii::$app->name])
+                            ->setTo($user->email)
+                            ->setSubject('Signup Confirmation')
+                            ->setHtmlBody("Click this link ".\yii\helpers\Html::a('confirm', Yii::$app->urlManager->createAbsoluteUrl(['site/confirm','id'=>$user->id])))
+                            ->send();
+                if ($email) {
+                    Yii::$app->getSession()->setFlash('success','Check Your email!');
+                } else {
+                    Yii::$app->getSession()->setFlash('warning','Failed, contact Admin!');
+                }
+            }
+            else {
+                return $this->render('about');
+            }
+        }
+        return $this->render('signup', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionConfirm($id)
+    {
+        $user = User::find()->where(['id'=> $id])->one();
+        if (!empty($user)) {
+            //$user->status=10;
+            //$user->save();
+            Yii::$app->getSession()->setFlash('success','Success!');
+            return $this->goHome();
+        } else {
+            Yii::$app->getSession()->setFlash('warning','Failed!');
+        }
+        //return $this->goHome();
     }
 }
