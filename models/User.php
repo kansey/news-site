@@ -8,11 +8,8 @@ use yii\base\NotSupportedException;
 
 class User extends ActiveRecord implements IdentityInterface
 {
-    //public $id;
-    //public $username;
-    //public $password;
-    public $authKey;
-    //public $accessToken;
+    const STATUS_GUEST = 'guest';
+    const STATUS_USER = 'user';
 
     private static $users = [
         '100' => [
@@ -42,7 +39,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+
+       return static::findOne(['id' => $id]);
     }
 
     /**
@@ -65,15 +63,9 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername($username)
+    public static function findByUsername($login)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+         return static::findOne(['login' => $login]);
     }
 
     /**
@@ -81,7 +73,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getId()
     {
-        return $this->id;
+        return $this->getPrimaryKey();
     }
 
     /**
@@ -89,7 +81,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
@@ -108,17 +100,23 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        //return $this->password === $password;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 
     public function setPassword($password)
     {
-        return Yii::$app->getSecurity()->generatePasswordHash($password);
+        $this->password = Yii::$app->getSecurity()->generatePasswordHash($password);
     }
 
     public function generateAuthKey()
     {
-        $this->authKey = Yii::$app->security->generateRandomString();
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    public function genereateToken()
+    {
+        $this->token = Yii::$app->security->generateRandomString();
     }
 
 }
