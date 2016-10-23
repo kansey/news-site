@@ -10,6 +10,8 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
 use app\models\User;
+use app\models\UploadForm;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -62,6 +64,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $id= Yii::$app->user->getId();
         return $this->render('index');
     }
 
@@ -162,5 +165,19 @@ class SiteController extends Controller
         } else {
             Yii::$app->getSession()->setFlash('warning','Failed!');
         }
+    }
+
+    public function actionAddnew()
+    {
+        $model = new UploadForm();
+        if (Yii::$app->request->isPost) {
+          $model->image = UploadedFile::getInstance($model, 'image');
+          var_dump($model->image);/*
+          if ($model->upload()) {
+               return $this->goHome();
+           }*/
+        }
+
+        return $this->render('upload', ['model' => $model]);
     }
 }
