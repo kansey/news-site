@@ -170,12 +170,15 @@ class SiteController extends Controller
     public function actionAddnew()
     {
         $model = new UploadForm();
+
         if (Yii::$app->request->isPost) {
           $model->image = UploadedFile::getInstance($model, 'image');
-          var_dump($model->image);/*
+          $model->title =  $_POST['UploadForm']['title'];
+          $model->body  =  $_POST['UploadForm']['body'];
+
           if ($model->upload()) {
                return $this->goHome();
-           }*/
+           }
         }
 
         return $this->render('upload', ['model' => $model]);
