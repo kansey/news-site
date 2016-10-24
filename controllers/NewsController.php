@@ -8,6 +8,8 @@ use app\models\NewsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\UploadForm;
+use yii\web\UploadedFile;
 
 /**
  * NewsController implements the CRUD actions for News model.
@@ -63,15 +65,19 @@ class NewsController extends Controller
      */
     public function actionCreate()
     {
-        $model = new News();
+        $model = new UploadForm();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        if (Yii::$app->request->isPost) {
+          $model->image = UploadedFile::getInstance($model, 'image');
+          $model->title =  $_POST['UploadForm']['title'];
+          $model->body  =  $_POST['UploadForm']['body'];
+
+          if ($model->upload()) {
+                header("Location: ". \Yii::$app->urlManager->createUrl("news/index"));
+           }
         }
+
+        return $this->render('upload', ['model' => $model]);
     }
 
     /**
@@ -83,7 +89,6 @@ class NewsController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
@@ -101,7 +106,11 @@ class NewsController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        //$this->findModel($id)->delete();
+         $model = News::find()->where(['id' => $id])->one();
+         if (unlink($model->image)) {
+           $model->delete();
+       }
 
         return $this->redirect(['index']);
     }

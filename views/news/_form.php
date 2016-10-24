@@ -6,6 +6,9 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\News */
 /* @var $form yii\widgets\ActiveForm */
+/*
+    <?php echo Html::img('@web/images/test.jpeg') ?> - вывод изображения для данной новости.
+*/
 ?>
 
 <div class="news-form">
