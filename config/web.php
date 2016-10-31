@@ -54,6 +54,10 @@ $config = [
             ],
         ],
         */
+        'authManager' => [
+            'class' => 'yii\rbac\PhpManager',
+            'defaultRoles' => [ 'admin','moder', 'user', 'guest'], 
+        ],
     ],
     'params' => $params,
 ];

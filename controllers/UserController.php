@@ -8,6 +8,8 @@ use app\models\UserSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\web\ForbiddenHttpException;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -17,17 +19,39 @@ class UserController extends Controller
     /**
      * @inheritdoc
      */
+
+
     public function behaviors()
     {
         return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['admin'],
+                    ],
                 ],
             ],
+            'deny' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => false,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['guest', 'user', 'moder'],
+                    ],
+                ],
+            ]
         ];
     }
+
 
     /**
      * Lists all User models.
@@ -84,8 +108,25 @@ class UserController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+
+            $model->setPassword($_POST['User']['password']);
+
+            if ($model->save()) {
+
+                $email = Yii::$app->mailer->compose()
+                        ->setFrom([\Yii::$app->params['adminEmail'] => 'Your send new password for' . \Yii::$app->name])
+                        ->setTo($model->email)
+                        ->setSubject('You have changed your password')
+                        ->setTextBody("Your new password ". $_POST['User']['password'])
+                        ->send();
+
+                if ($email) {
+                    return $this->redirect(['view', 'id' => $model->id]);
+                } else {
+                    throw new NotFoundHttpException('warning','Failed, wrong email user or admin');
+                }
+            }
         } else {
             return $this->render('update', [
                 'model' => $model,

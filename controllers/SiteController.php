@@ -10,38 +10,39 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
 use app\models\User;
+use yii\web\ForbiddenHttpException;
 
 class SiteController extends Controller
 {
     /**
      * @inheritdoc
      */
+
     public function behaviors()
     {
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
                         'allow' => true,
+                        'actions' => ['index', 'login'],
+                        'roles' => ['guest'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['logout'],
                         'roles' => ['@'],
                     ],
                 ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
+            ]
         ];
     }
 
     /**
      * @inheritdoc
      */
+
     public function actions()
     {
         return [
@@ -62,7 +63,6 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $id= Yii::$app->user->getId();
         return $this->render('index');
     }
 

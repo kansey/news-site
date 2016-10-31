@@ -8,9 +8,10 @@ use app\models\NewsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use app\models\UploadForm;
 use yii\web\UploadedFile;
-
+use yii\web\ForbiddenHttpException;
 /**
  * NewsController implements the CRUD actions for News model.
  */
@@ -19,6 +20,7 @@ class NewsController extends Controller
     /**
      * @inheritdoc
      */
+     /*
     public function behaviors()
     {
         return [
@@ -28,6 +30,37 @@ class NewsController extends Controller
                     'delete' => ['POST'],
                 ],
             ],
+        ];
+    }*/
+
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['moder', 'admin'],
+                    ],
+                ],
+            ],
+            'deny' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => false,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'roles' => ['guest', 'user'],
+                    ],
+                ],
+            ]
         ];
     }
 
@@ -106,11 +139,11 @@ class NewsController extends Controller
      */
     public function actionDelete($id)
     {
-        //$this->findModel($id)->delete();
-         $model = News::find()->where(['id' => $id])->one();
-         if (unlink($model->image)) {
+        $model = News::find()->where(['id' => $id])->one();
+
+        if (unlink($model->image)) {
            $model->delete();
-       }
+        }
 
         return $this->redirect(['index']);
     }
