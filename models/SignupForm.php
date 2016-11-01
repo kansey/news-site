@@ -42,9 +42,27 @@ class SignupForm extends Model
         $user->setPassword($this->password);
         $user->genereateToken();
         $user->generateAuthKey();
+
         return $user->save() ? $user : null;
     }
+
+    public function sendMessageAdmins($email)
+    {
+        $admins = User::find()
+            ->asArray()
+            ->select(['email'])
+            ->where(['status' => 'admin'])
+            ->all();
+
+        foreach ($admins as $admin) {
+            $sendEmail = Yii::$app->mailer->compose()
+                ->setFrom([\Yii::$app->params['adminEmail'] => 'Register a new user from' . \Yii::$app->name])
+                ->setTo($admin['email'])
+                ->setSubject('Register a new user from')
+                ->setTextBody("New user from ". $email)
+                ->send();
+        }
+        return empty($admins) ? false : true;
+    }
 }
-
-
 ?>

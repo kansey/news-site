@@ -26,7 +26,12 @@ class SiteController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'login'],
+                        'actions' => ['index', 'signup', 'login', 'error'],
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'login', 'signup', 'error'],
                         'roles' => ['guest'],
                     ],
                     [
@@ -108,7 +113,6 @@ class SiteController extends Controller
         $model = new ContactForm();
         if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
             Yii::$app->session->setFlash('contactFormSubmitted');
-
             return $this->refresh();
         }
         return $this->render('contact', [
@@ -133,15 +137,22 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->signup()) {
                     $email = Yii::$app->mailer->compose()
-                            ->setFrom([\Yii::$app->params['adminEmail'] => 'Please confirm email for' . \Yii::$app->name])
-                            ->setTo($user->email)
-                            ->setSubject('Signup Confirmation')
-                            ->setHtmlBody("Click this link ".\yii\helpers\Html::a('confirm', Yii::$app->urlManager->createAbsoluteUrl(['site/confirm','token'=>$user->token])))
-                            ->send();
+                        ->setFrom([\Yii::$app->params['adminEmail'] => 'Please confirm email for' . \Yii::$app->name])
+                        ->setTo($user->email)
+                        ->setSubject('Signup Confirmation')
+                        ->setHtmlBody("Click this link ".\yii\helpers\Html::a('confirm', Yii::$app->urlManager->createAbsoluteUrl(['site/confirm','token'=>$user->token])))
+                        ->send();
+
                 if ($email) {
                     Yii::$app->getSession()->setFlash('success','Check Your email!');
                 } else {
                     Yii::$app->getSession()->setFlash('warning','Failed, contact Admin!');
+                }
+
+                if (!$model->sendMessageAdmins($user->email)) {
+                    return $this->render('error', [
+                        'message' => 'Something went wrong',
+                    ]);
                 }
             }
         }
