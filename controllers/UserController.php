@@ -6,6 +6,7 @@ use Yii;
 use app\models\User;
 use app\models\UserSearch;
 use app\models\CreateUser;
+use app\models\ConfirmForm;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -27,17 +28,13 @@ class UserController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
+                'only' => ['index', 'view', 'create', 'update', 'confirm'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update'],
-                        'roles' => ['admin'],
+                        'actions' => ['confirm'],
+                        'roles' => ['?'],
                     ],
-                ],
-            ],
-            'deny' => [
-                'class' => AccessControl::className(),
-                'rules' => [
                     [
                         'allow' => false,
                         'actions' => ['index', 'view', 'create', 'update'],
@@ -45,11 +42,38 @@ class UserController extends Controller
                     ],
                     [
                         'allow' => true,
+                        'roles' => ['admin'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['guest'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['user'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['moder'],
+                    ],
+                ],
+            ],/*
+            'deny' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => false,
+                        'actions' => ['view', 'create', 'update'],
+                        'roles' => ['?'],
+                    ],
+
+                    [
+                        'allow' => true,
                         'actions' => ['index', 'view', 'create', 'update'],
                         'roles' => ['guest', 'user', 'moder'],
                     ],
                 ],
-            ]
+            ]*/
         ];
     }
 
@@ -89,17 +113,48 @@ class UserController extends Controller
     public function actionCreate()
     {
         $model = new CreateUser();
-/*
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {*/
+        if ($model->load(Yii::$app->request->post())) {
 
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        //}
+            if ($user = $model->createUser()) {
+
+                $email = Yii::$app->mailer->compose()
+                    ->setFrom([\Yii::$app->params['adminEmail'] => 'Authorization for' . \Yii::$app->name])
+                    ->setTo($user->email)
+                    ->setSubject('Authorization')
+                    ->setHtmlBody("Click this link ".\yii\helpers\Html::a('confirm', Yii::$app->urlManager->createAbsoluteUrl(['user/confirm','token'=> $user->token])) .'to be authorized')
+                    ->send();
+
+                if ($email) {
+                    Yii::$app->getSession()->setFlash('success','Email send!');
+                } else {
+                    Yii::$app->getSession()->setFlash('warning','Failed, Email not send');
+                }
+            }
+        }
+        return $this->render('create', [
+            'model' => $model,
+        ]);
     }
+
+    public function actionConfirm($token)
+    {
+        $modelConfirm = new ConfirmForm();
+
+        if ($modelConfirm->load(Yii::$app->request->post()) && $modelConfirm->validate()) {
+            $user = User::find()->where(['token'=> $token])->one();
+
+            if (!empty($user)) {
+                $user->status = 'admin';
+                $user->setPassword($modelConfirm->password);
+                $user->save();
+                return header("Location: ". \Yii::$app->urlManager->createUrl("site/login"));
+            }
+        }
+        return $this->render('confirm', [
+            'model' => $modelConfirm,
+        ]);
+}
 
     /**
      * Updates an existing User model.

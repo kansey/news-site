@@ -18,21 +18,23 @@ class RbacController extends Controller
         $admin  = $authManager->createRole('admin');
 
         // Create simple, based on action{$NAME} permissions
-        $login       = $authManager->createPermission('login');
-        $logout      = $authManager->createPermission('logout');
-        $error       = $authManager->createPermission('error');
-        $signup      = $authManager->createPermission('signup');
-        $site_index  = $authManager->createPermission('site_index');
-        $news_view   = $authManager->createPermission('news_view');
-        $news_update = $authManager->createPermission('news_update');
-        $news_delete = $authManager->createPermission('news_delete');
-        $news_create = $authManager->createPermission('news_create');
-        $news_index  = $authManager->createPermission('news_index');
-        $user_view   = $authManager->createPermission('news_view');
-        $user_update = $authManager->createPermission('user_update');
-        $user_delete = $authManager->createPermission('user_delete');
-        $user_create = $authManager->createPermission('user_create');
-        $user_index  = $authManager->createPermission('user_index');
+        $login        = $authManager->createPermission('login');
+        $logout       = $authManager->createPermission('logout');
+        $error        = $authManager->createPermission('error');
+        $signup       = $authManager->createPermission('signup');
+        $site_index   = $authManager->createPermission('site_index');
+        $site_confirm = $authManager->createPermission('site_confirm');
+        $news_view    = $authManager->createPermission('news_view');
+        $news_update  = $authManager->createPermission('news_update');
+        $news_delete  = $authManager->createPermission('news_delete');
+        $news_create  = $authManager->createPermission('news_create');
+        $news_index   = $authManager->createPermission('news_index');
+        $user_view    = $authManager->createPermission('news_view');
+        $user_update  = $authManager->createPermission('user_update');
+        $user_delete  = $authManager->createPermission('user_delete');
+        $user_create  = $authManager->createPermission('user_create');
+        $user_index   = $authManager->createPermission('user_index');
+        $user_confirm = $authManager->createPermission('user_confirm');
 
         // Add permissions in Yii::$app->authManager
         $authManager->add($login);
@@ -40,6 +42,7 @@ class RbacController extends Controller
         $authManager->add($error);
         $authManager->add($signup);
         $authManager->add($site_index);
+        $authManager->add($site_confirm);
         $authManager->add($news_view);
         $authManager->add($news_update);
         $authManager->add($news_delete);
@@ -50,6 +53,7 @@ class RbacController extends Controller
         $authManager->add($user_delete);
         $authManager->add($user_create);
         $authManager->add($user_index);
+        $authManager->add($user_confirm);
 
         // Add rule, based on UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -70,7 +74,8 @@ class RbacController extends Controller
         // Add permission-per-role in Yii::$app->authManager
         // Guest
         $authManager->addChild($guest, $login);
-        //$authManager->addChild($guest, $logout);
+        $authManager->addChild($guest, $site_confirm);
+        $authManager->addChild($guest, $user_confirm);
         $authManager->addChild($guest, $error);
         $authManager->addChild($guest, $signup);
         $authManager->addChild($guest, $site_index);

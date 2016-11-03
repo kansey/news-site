@@ -23,15 +23,14 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
+                'only' => ['index', 'signup', 'login', 'error', 'confirm'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'signup', 'login', 'error'],
                         'roles' => ['?'],
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'login', 'signup', 'error'],
                         'roles' => ['guest'],
                     ],
                     [

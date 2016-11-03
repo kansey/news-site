@@ -20,7 +20,7 @@ class SignupForm extends Model
             [['login','password','repeatPassword','email'],'required'],
             [['login','password','repeatPassword','email'],'trim'],
             ['login', 'string', 'min' => 2, 'max' => 255],
-            ['login', 'unique', 'targetClass' => '\app\models\User', 'message' => 'This username has already been taken.'],
+            ['login', 'unique', 'targetClass' => '\app\models\User', 'message' => 'This login has already been taken.'],
             ['password', 'string', 'min' => 6, 'max' => 255],
             ['repeatPassword', 'string', 'min' => 6, 'max' => 255],
             ['repeatPassword','compare','compareAttribute'=>'password'],

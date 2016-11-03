@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
-
+use kartik\alert\AlertBlock;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\User */
@@ -20,12 +20,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     <?= $form->field($model, 'password')->passwordInput(); ?>
                     <?= $form->field($model, 'email')->input('email'); ?>
                     <?= $form->field($model, 'status')->dropDownList([
-                        '0' => 'moder',
-                        '1' => 'admin'
-                    ]); ?>
+                        'moder' => 'moder',
+                        'admin' => 'admin'
+                    ]);
+                    ?>
                     <div class="form-group">
                         <?= Html::submitButton('Create', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
                     </div>
+                    <?php echo AlertBlock::widget([
+                        'type' => AlertBlock::TYPE_ALERT,
+                        'useSessionFlash' => true]);
+                    ?>
                 <?php ActiveForm::end(); ?>
             </div>
         </div>

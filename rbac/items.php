@@ -15,6 +15,9 @@ return [
     'site_index' => [
         'type' => 2,
     ],
+    'site_confirm' => [
+        'type' => 2,
+    ],
     'news_view' => [
         'type' => 2,
     ],
@@ -42,11 +45,16 @@ return [
     'user_index' => [
         'type' => 2,
     ],
+    'user_confirm' => [
+        'type' => 2,
+    ],
     'guest' => [
         'type' => 1,
         'ruleName' => 'userGroup',
         'children' => [
             'login',
+            'site_confirm',
+            'user_confirm',
             'error',
             'signup',
             'site_index',
