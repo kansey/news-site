@@ -28,37 +28,70 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => 'My Company',
+        'brandLabel' => 'News site',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
 
+    $menuItems = [
+        ['label' => 'Home', 'url' => ['/site/index']],
+    ];
 
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            ['label' => 'SignUp', 'url' => ['/site/signup']],
-            ['label' => 'Admin', 'url' => ['/user/index']],
-            ['label' => 'PanelNews', 'url' => ['/news/index']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->login . ')',
-                    ['class' => 'btn btn-link']
-                )
-                . Html::endForm()
-                . '</li>'
+    if (Yii::$app->user->isGuest) {
+
+        $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
+        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+
+    }
+    elseif (\Yii::$app->user->identity->status === 'user') {
+
+        $menuItems[] = ['label' => 'Profile', 'url' => ['/site/profile']];
+        $menuItems[] = '<li>'
+            . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+            . Html::submitButton(
+                'Logout (' . Yii::$app->user->identity->login . ')',
+                ['class' => 'btn btn-link']
             )
-        ],
-    ]);
+            . Html::endForm()
+            . '</li>';
+
+    }
+    elseif (\Yii::$app->user->identity->status === 'moder') {
+
+        $menuItems[] = ['label' => 'Profile', 'url' => ['/site/profile']];
+        $menuItems[] = ['label' => 'PanelNews', 'url' => ['/news/index']];
+        $menuItems[] = '<li>'
+        . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+        . Html::submitButton(
+            'Logout (' . Yii::$app->user->identity->login . ')',
+            ['class' => 'btn btn-link']
+        )
+        . Html::endForm()
+        . '</li>';
+
+    }
+    elseif (\Yii::$app->user->identity->status === 'admin') {
+
+        $menuItems[] = ['label' => 'Profile', 'url' => ['/site/profile']];
+        $menuItems[] = ['label' => 'PanelNews', 'url' => ['/news/index']];
+        $menuItems[] = ['label' => 'Admin', 'url' => ['/user/index']];
+        $menuItems[] = '<li>'
+        . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+        . Html::submitButton(
+            'Logout (' . Yii::$app->user->identity->login . ')',
+            ['class' => 'btn btn-link']
+        )
+        . Html::endForm()
+        . '</li>';
+
+    }
+
+echo Nav::widget([
+    'options' => ['class' => 'navbar-nav navbar-right'],
+    'items' => $menuItems,
+]);
     NavBar::end();
     ?>
     <div class="container">
@@ -72,7 +105,6 @@ AppAsset::register($this);
 <footer class="footer">
     <div class="container">
         <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
-
         <p class="pull-right"><?= Yii::powered() ?></p>
     </div>
 </footer>

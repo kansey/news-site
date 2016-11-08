@@ -174,4 +174,12 @@ class SiteController extends Controller
             Yii::$app->getSession()->setFlash('warning','Failed!');
         }
     }
+
+    public function actionProfile()
+    {
+        $user = User::find()->where(['id'=> \Yii::$app->user->identity->id])->one();
+        return $this->render('profile', [
+            'model' => $user,
+        ]);
+    }
 }
